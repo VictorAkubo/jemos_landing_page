@@ -1,4 +1,5 @@
-import React from 'react';
+import React,{useState} from 'react';
+import emailjs from "@emailjs/browser";
 
 export default function BookingView({
   showHome,
@@ -9,11 +10,46 @@ export default function BookingView({
   handleForm
 }) {
   
+  const [formData, setFormData] = useState({
+    user_name: "",
+    user_email: "",
+    message: `reason date`,
+  });
   const selectOption = (val) => {
     setSelectedService(val);
     setDropdownOpen(false);
   };
+  
+ 
+const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
+  const sendEmail = async (e) => {
+    e.preventDefault();
+
+    try {
+      await emailjs.send(
+        "service_tg2ey4n",
+        "template_dgn29po",
+        formData,
+        "bU9hLmSSrxLierYco"
+      );
+
+      alert("Message sent successfully!");
+
+      setFormData({
+        user_name: "",
+        user_email: "",
+        message: "",
+      });
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  };
   return (
     <section 
       id="booking-view" 
@@ -70,59 +106,8 @@ export default function BookingView({
 
           {/* premium-card class from your CSS automatically flips background from #0a0a0a to #ffffff */}
           <div className="premium-card p-10 sm:p-16 rounded-[4rem] relative shadow-2xl" data-aos="fade-left">
-            <form className="space-y-8" id="metaedge-form" onSubmit={handleForm}>
-              
-              <div className="space-y-1">
-                <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Full Name</label>
-                <input type="text" placeholder="John Doe" required className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 focus:border-accent outline-none font-bold text-lg transition-colors" />
-              </div>
+{/*Form*/}
 
-              <div className="space-y-1">
-                <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Work Email</label>
-                <input type="email" placeholder="john@company.com" required className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 focus:border-accent outline-none font-bold text-lg transition-colors" />
-              </div>
-
-              <div className="custom-select-container relative">
-                <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-2">Integration Goal</label>
-                <div 
-                  className="select-trigger cursor-pointer flex justify-between items-center border-b border-black/10 dark:border-white/10 py-4" 
-                  onClick={(e) => { e.stopPropagation(); setDropdownOpen(!dropdownOpen); }}
-                >
-                  <span className={`font-bold text-lg transition-colors ${selectedService ? 'accent-color' : 'opacity-40'}`}>
-                    {selectedService || "Choose a service..."}
-                  </span>
-                  <i className={`fa-solid fa-chevron-down accent-color text-xs transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`}></i>
-                </div>
-                
-                {dropdownOpen && (
-                  <div className="custom-options text-white absolute top-full left-0 right-0 bg-[#0a0a0a] border accent-border rounded-2xl mt-2 z-50 overflow-hidden shadow-2xl">
-                    {['24/7 AI Receptionist', 'Lead Qualification Bot', 'Customer Support Agent'].map((option) => (
-                      <div 
-                        key={option}
-                        className="option-item p-5 flex justify-between items-center hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors" 
-                        onClick={() => selectOption(option)}
-                      >
-                        <span className="font-bold">{option}</span>
-                        <div className={`radio-circle w-5 h-5 border-2 rounded-full transition-all ${selectedService === option ? 'accent-bg' : 'border-black/20 dark:border-white/20'}`}></div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Preferred Date</label>
-                <input type="date" required className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 focus:accent-color outline-none font-bold text-lg [color-scheme:light] dark:[color-scheme:dark]" />
-              </div>
-
-              {/* Using accent-bg from your CSS */}
-              <button 
-                type="submit" 
-                className="w-full accent-bg py-7 rounded-2xl font-black uppercase tracking-widest text-xs hover:opacity-90 transition-all active:scale-95 shadow-xl"
-              >
-                Confirm Booking Now
-              </button>
-            </form>
           </div>
         </div>
       </div>
