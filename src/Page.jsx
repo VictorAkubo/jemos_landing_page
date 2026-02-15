@@ -19,8 +19,9 @@ export default function Page() {
     localStorage.getItem("metaedge_banner_dismissed") !== "true"
   );
 
+//once : true
   useEffect(() => {
-    AOS.init({ duration: 1200, once: true });
+    AOS.init({ duration: 1200 ,mirror:true});
   }, []);
 
   useEffect(() => {
