@@ -85,7 +85,6 @@ export default function BookingView({
                   value={inputs.website} 
                   onChange={handleChange} 
                   placeholder="https://company.com" 
-                  pattern="(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}.*"
                   required 
                   className="w-full bg-transparent border-b border-black/10 dark:border-white/10 py-4 focus:border-accent outline-none font-bold text-lg transition-colors" 
                 />
