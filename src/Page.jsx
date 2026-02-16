@@ -1,4 +1,7 @@
+"use client";
+
 import { useEffect, useState } from "react";
+import emailjs from "@emailjs/browser";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -9,33 +12,39 @@ import SuccessModal from "./components/SuccessModal";
 import Footer from "./components/Footer";
 
 export default function Page() {
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+  const [theme, setTheme] = useState(
+    typeof window !== "undefined" ? localStorage.getItem("theme") || "dark" : "dark"
+  );
   const [view, setView] = useState("home");
   const [tickets, setTickets] = useState(500);
   const [selectedService, setSelectedService] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [bannerVisible, setBannerVisible] = useState(
-    localStorage.getItem("metaedge_banner_dismissed") !== "true"
-  );
+  const [loading, setLoading] = useState(false);
+  const [bannerVisible, setBannerVisible] = useState(true);
 
-//once : true
+  // Initialize AOS animations
   useEffect(() => {
-    AOS.init({ duration: 1200 ,mirror:true});
+    AOS.init({ duration: 1200, mirror: true, once: false });
+    
+    if (typeof window !== "undefined") {
+      setBannerVisible(localStorage.getItem("metaedge_banner_dismissed") !== "true");
+    }
   }, []);
 
+  // Handle Theme Switching
   useEffect(() => {
     document.documentElement.className = theme;
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  // Global click listener to close dropdowns
   useEffect(() => {
     function handleClickOutside(e) {
       if (!e.target.closest(".custom-select-container")) {
         setDropdownOpen(false);
       }
     }
-
     window.addEventListener("click", handleClickOutside);
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
@@ -54,14 +63,44 @@ export default function Page() {
     window.scrollTo(0, 0);
   };
 
-  const handleForm = (e) => {
-    e.preventDefault();
-    setShowModal(true);
+  /**
+   * handleForm
+   * Receives the object from BookingView: { name, email, title }
+   * title contains: "Service | Website | Date"
+   */
+  const handleForm = async (formData) => {
+    setLoading(true);
+
+    const templateParams = {
+      name: formData.name,
+      email: formData.email,
+      title: formData.title, // Concatenated info
+    };
+
+    try {
+      await emailjs.send(
+        "service_tg2ey4n",
+        "template_dgn29po",
+        templateParams,
+        "bU9hLmSSrxLierYco"
+      );
+
+      // Successful send - Show Modal
+      setShowModal(true);
+      
+      // Optional: Reset service selection after success
+      setSelectedService(""); 
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      alert("Something went wrong with the booking. Please try again. ❌");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const closeModal = () => {
     setShowModal(false);
-    showHome();
+    showHome(); // Redirect back to home after successful booking
   };
 
   const dismissBanner = () => {
@@ -79,26 +118,30 @@ export default function Page() {
         dismissBanner={dismissBanner}
       />
 
-      {view === "home" && (
-        <HomeView
-          tickets={tickets}
-          setTickets={setTickets}
-          showBooking={showBooking}
-        />
-      )}
+      <main>
+        {view === "home" && (
+          <HomeView
+            tickets={tickets}
+            setTickets={setTickets}
+            showBooking={showBooking}
+          />
+        )}
 
-      {view === "booking" && (
-        <BookingView
-          showHome={showHome}
-          selectedService={selectedService}
-          setSelectedService={setSelectedService}
-          dropdownOpen={dropdownOpen}
-          setDropdownOpen={setDropdownOpen}
-          handleForm={handleForm}
-        />
-      )}
+        {view === "booking" && (
+          <BookingView
+            showHome={showHome}
+            selectedService={selectedService}
+            setSelectedService={setSelectedService}
+            dropdownOpen={dropdownOpen}
+            setDropdownOpen={setDropdownOpen}
+            handleForm={handleForm} // Passed as a prop
+            loading={loading}       // Controls the "Sending..." button text
+          />
+        )}
+      </main>
 
       <SuccessModal showModal={showModal} closeModal={closeModal} />
+      
       <Footer />
     </div>
   );
