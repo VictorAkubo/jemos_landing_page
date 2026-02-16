@@ -80,7 +80,7 @@ export default function BookingView({
               <div className="space-y-1">
                 <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Company Website</label>
                 <input 
-                  type="url" 
+                  type="text" 
                   name="website" 
                   value={inputs.website} 
                   onChange={handleChange} 
